@@ -12,12 +12,13 @@ enum buildings_type {
 };
 
 enum room_type {
-	BEDROOM = 1,
+	NO_ROOMS,
+	BEDROOM,
 	KITCHEN,
 	BATHROOM,
 	WC,
 	CHILDREN,
-	LIVING
+	LIVING,
 };
 
 struct room_composition {
@@ -57,7 +58,7 @@ int main() {
 	float buildings_area = 0;
 	int buildings_quantity = 0;
 
-	std::cout << "Input Total number of areas in the village:";
+	std::cout << "Input Total number of plots in the village:";
 	std::cin >> village.plots_sum;
 
 	for (int i = 1; i <= village.plots_sum; i++) {
@@ -74,14 +75,21 @@ int main() {
 
 		building_composition building;
 		for (int j = 1; j <= plot.building_sum; j++) {
-			std::cout 	<< "Select building's type (1 - 5) "
+			short type_num;
+			std::cout 	<< "Select building #" << j << " type (1 - 5) "
 						<< "(MAIN_HOUSE, PARENT_HOUSE, GARAGE, SARAY, BANYA):";
-			unsigned short type_num;
 			std::cin >> type_num;
+			while (type_num < 0 || type_num > 5) {
+				std::cout << "ERROR of input!!!" << std::endl;
+				std::cout 	<< "Select building #" << j << " type (1 - 5) "
+							 << "(MAIN_HOUSE, PARENT_HOUSE, GARAGE, SARAY, BANYA):";
+				std::cin >> type_num;
+			}
 			switch (type_num) {
-				case 1:
-					building.buildingsType = MAIN_HOUSE;
-					break;
+				default:
+					case 1:
+						building.buildingsType = MAIN_HOUSE;
+						break;
 				case 2:
 					building.buildingsType = PARENT_HOUSE;
 					break;
@@ -95,9 +103,8 @@ int main() {
 					building.buildingsType = BANYA;
 					break;
 			}
-			std::cout << "You're select type: " << building.buildingsType << std::endl;
 
-			std::cout << "Area of plot (m2):";
+			std::cout << "Area of building (m2):";
 			std::cin >> building.area;
 			buildings_area += building.area;
 
@@ -109,21 +116,31 @@ int main() {
 			else
 				building.furnace_with_pipe = false;
 
-			std::cout << "Number of floors in the building:";
+			std::cout << "Number of floors in the building #" << j << ":";
 			std::cin >> building.floors_sum;
 			floor_composition floor;
 			for (int k = 1; k <= building.floors_sum; k++) {
-				std::cout << "Ceiling height on this floor:" ;
+				std::cout << "Ceiling height of floor #" << k << ":" ;
 				std::cin >> floor.ceiling_height;
-				std::cout << "Quantity of rooms on this floor:";
+				std::cout << "Quantity of rooms on floor #" << k << ":";
 				std::cin >> floor.rooms_sum;
 				room_composition room;
 				for (int l = 1; l <= floor.rooms_sum; l++) {
-					std::cout 	<< "Select room's type (1 - 6) "
-								<< "(BEDROOM, KITCHEN, BATHROOM, WC, CHILDREN, LIVING)";
-					unsigned short room_type_num;
+					short room_type_num;
+					std::cout << "Select room #" << l << " type (0 - 6) "
+								<< "(NO_ROOMS, BEDROOM, KITCHEN, BATHROOM, WC, CHILDREN, LIVING):";
 					std::cin >> room_type_num;
+					while (room_type_num < 0 || room_type_num > 6) {
+						std::cout << "ERROR of input!!!" << std::endl;
+						std::cout << "Select room #" << l << " type (0 - 6) "
+								  << "(NO_ROOMS, BEDROOM, KITCHEN, BATHROOM, WC, CHILDREN, LIVING):";
+						std::cin >> room_type_num;
+					}
 					switch (room_type_num) {
+						default:
+							case 0:
+								room.roomType = NO_ROOMS;
+								break;
 						case 1:
 							room.roomType = BEDROOM;
 							break;
@@ -143,8 +160,12 @@ int main() {
 							room.roomType = LIVING;
 							break;
 					}
-					std::cout << "Room's area (m2):";
-					std::cin >> room.area;
+					if (room.roomType == 0) {
+						room.area = 0;
+					} else {
+						std::cout << "Room's area (m2):";
+						std::cin >> room.area;
+					}
 					floor.roomComposes.push_back(room);
 				}
 				building.floorComposes.push_back(floor);
@@ -157,5 +178,5 @@ int main() {
 	std::cout << "Village composing complete!" << std::endl;
 	std::cout << "Total area of village = " << village_area << " m2" << std::endl;
 	std::cout 	<< "Total area of buildings = " << buildings_area << " m2 ("
-				<< ((village_area / 100) * buildings_area) << "% of village area)" << std::endl;
+				<< ((100 * buildings_area) / village_area) << "% of village area)" << std::endl;
 }
